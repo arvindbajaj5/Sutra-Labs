@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sutra Labs — The Architecture of Presence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ivory: #f4f1ea;
+      --ivory-card: #ebe6dc;
+      --graphite: #1c1e21;
+      --muted: #52565c;
+      --terracotta: #d8522b;
+      --saffron: #e87a36;
+      --ochre: #c29b38;
+      --rule: #d4cfc3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 52px 24px 96px;
+      background-color: var(--ivory);
+      color: var(--graphite);
+      font-family: 'EB Garamond', Georgia, serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.74;
+      font-size: 19.5px;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; }
+
+    /* MASTHEAD */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 22px;
+      border-bottom: 1.5px solid var(--graphite);
+      margin-bottom: 64px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      color: var(--graphite);
+    }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    .brand-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-top: 4px;
+      font-weight: 700;
+    }
+    .nav-link {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      text-decoration: none;
+      border-bottom: 1px solid var(--terracotta);
+      padding-bottom: 3px;
+    }
+    .nav-link:hover { color: var(--graphite); border-color: var(--graphite); }
+
+    /* HERO */
+    .hero { margin-bottom: 56px; }
+    .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 2.8px;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .eyebrow .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--terracotta);
+      display: inline-block;
+    }
+    h1 {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: clamp(38px, 5.4vw, 56px);
+      font-weight: 500;
+      line-height: 1.12;
+      letter-spacing: -0.3px;
+      margin: 0 0 18px 0;
+    }
+    h1 em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--terracotta);
+    }
+    .hero-subtitle {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: clamp(24px, 3.2vw, 31px);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--graphite);
+      line-height: 1.35;
+      margin: 0 0 22px 0;
+    }
+    .lead {
+      font-size: 21px;
+      line-height: 1.68;
+      color: var(--muted);
+      max-width: 780px;
+      margin: 0;
+    }
+
+    /* HIGH-LEVEL LEMNISCATE PLATE */
+    .plate-box {
+      background: var(--ivory-card);
+      border: 1.5px solid var(--graphite);
+      border-radius: 4px;
+      padding: 32px 28px 30px;
+      text-align: center;
+      margin-bottom: 64px;
+    }
+    .plate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 12px;
+      margin-bottom: 28px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .plate-header span.accent { color: var(--terracotta); font-weight: 700; }
+    .plate-narrative {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--rule);
+      text-align: left;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      font-size: 18px;
+      line-height: 1.66;
+      color: var(--muted);
+    }
+    @media (max-width: 720px) {
+      .plate-narrative { grid-template-columns: 1fr; gap: 16px; }
+    }
+    .plate-narrative strong { color: var(--graphite); font-weight: 600; }
+
+    @keyframes pulseRing {
+      0%, 100% { r: 20px; stroke-opacity: 0.55; }
+      50% { r: 28px; stroke-opacity: 0.15; }
+    }
+    .sutra-pulse { animation: pulseRing 6s ease-in-out infinite; }
+
+    /* SECTION HEADERS */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-top: 1.5px solid var(--graphite);
+      padding-top: 20px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .section-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+    }
+    .section-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--terracotta);
+      letter-spacing: 1.5px;
+    }
+
+    /* SPLIT LEDGER: EKAM & DHVANI */
+    .split-ledger {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-bottom: 48px;
+    }
+    @media (max-width: 740px) {
+      .split-ledger { grid-template-columns: 1fr; }
+    }
+    .ledger-col {
+      background: var(--ivory-card);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 28px;
+    }
+    .ledger-col-head {
+      border-bottom: 1.5px solid var(--graphite);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+    .ledger-kicker {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 6px;
+    }
+    .ledger-col-head h2 {
+      margin: 0 0 6px 0;
+      font-size: 27px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+    .ledger-col-sub {
+      font-size: 16.5px;
+      font-style: italic;
+      color: var(--muted);
+      margin: 0;
+    }
+    .ledger-item {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .ledger-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .ledger-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+    .ledger-item h3 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 600;
+    }
+    .ledger-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .ledger-item p {
+      margin: 0;
+      font-size: 17.5px;
+      line-height: 1.62;
+      color: var(--muted);
+    }
+
+    /* THE SUTRA TRANSITION BOX */
+    .sutra-bridge {
+      background: var(--ivory-card);
+      border-left: 3.5px solid var(--terracotta);
+      border-top: 1px solid var(--rule);
+      border-right: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 26px 28px;
+      margin-bottom: 64px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 28px;
+      align-items: center;
+    }
+    @media (max-width: 700px) {
+      .sutra-bridge { grid-template-columns: 1fr; }
+    }
+    .sutra-bridge h3 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+      font-weight: 500;
+    }
+    .sutra-bridge p {
+      margin: 0;
+      font-size: 18px;
+      color: var(--muted);
+      line-height: 1.64;
+    }
+    .bridge-meta {
+      font-family: 'Space Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      font-weight: 700;
+      padding: 8px 14px;
+      background: var(--ivory);
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      text-align: center;
+    }
+
+    /* EXPANDED ESSAY SECTION FOR DEPTH */
+    .essay-section {
+      background: var(--ivory-card);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 36px 32px;
+      margin-bottom: 64px;
+    }
+    .essay-section h2 {
+      font-size: 28px;
+      font-weight: 500;
+      margin: 0 0 16px 0;
+    }
+    .essay-section p {
+      font-size: 18.5px;
+      color: var(--muted);
+      margin-bottom: 18px;
+      line-height: 1.7;
+    }
+    .essay-section p:last-child { margin-bottom: 0; }
+
+    /* QUOTE CALLOUT */
+    .quote-box {
+      border-left: 3.5px solid var(--terracotta);
+      padding: 16px 24px;
+      margin: 0 0 64px 0;
+      font-size: 21px;
+      font-style: italic;
+      line-height: 1.56;
+      color: var(--graphite);
+      background: var(--ivory-card);
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* MUSEUM INDEX FOR THE EIGHT PATHS */
+    .paths-index {
+      border-top: 1px solid var(--rule);
+      margin-bottom: 64px;
+    }
+    .path-row {
+      display: grid;
+      grid-template-columns: 76px 210px 1fr 175px;
+      gap: 18px;
+      align-items: baseline;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    @media (max-width: 740px) {
+      .path-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+    }
+    .path-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--terracotta);
+      letter-spacing: 1.5px;
+    }
+    .path-name {
+      font-size: 21.5px;
+      font-weight: 600;
+      color: var(--graphite);
+    }
+    .path-desc {
+      font-size: 18px;
+      color: var(--muted);
+      line-height: 1.58;
+    }
+    .path-meta {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: right;
+    }
+    @media (max-width: 740px) {
+      .path-meta { text-align: left; }
+    }
+
+    footer {
+      border-top: 1.5px solid var(--graphite);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Space Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <a href="index.html" class="brand">
+      <!-- Original 9-Dot Sutra Labs Emblem -->
+      <svg width="42" height="42" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="36" height="36" rx="4" fill="#ebe6dc" stroke="#1c1e21" stroke-width="1.5"/>
+        <circle cx="11" cy="11" r="1.5" fill="#1c1e21"/><circle cx="19" cy="11" r="1.5" fill="#1c1e21"/><circle cx="27" cy="11" r="1.5" fill="#1c1e21"/>
+        <circle cx="11" cy="19" r="1.5" fill="#1c1e21"/><circle cx="27" cy="19" r="1.5" fill="#1c1e21"/>
+        <circle cx="11" cy="27" r="1.5" fill="#1c1e21"/><circle cx="19" cy="27" r="1.5" fill="#1c1e21"/><circle cx="27" cy="27" r="1.5" fill="#1c1e21"/>
+        <circle cx="19" cy="19" r="2.8" fill="#d8522b"/>
+        <path d="M11 27 C11 19, 19 19, 19 19 C19 19, 27 19, 27 11" fill="none" stroke="#1c1e21" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-text">
+        <div class="brand-name">Sutra Labs</div>
+        <div class="brand-sub">The Architecture of Presence</div>
+      </div>
+    </a>
+    <a href="brand-manual.html" class="nav-link">Brand Manual &amp; Indic Roots &rarr;</a>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow"><span class="dot"></span> Sutra Labs // Positioning &amp; Doctrine</div>
+    <h1>The Architecture of <em>Presence</em>.</h1>
+    <div class="hero-subtitle">
+      A continuous loop between the moment we inhabit and the inner voice that guides us forward.
+    </div>
+    <p class="lead">
+      In Sanskrit, <em>Sūtra</em> is the thread that weaves discrete moments into an unbroken whole. Modern existence fractures human presence: we either lose our deepest thoughts to the rush of the day, or we sacrifice our stillness trying to record and manage them. Sutra Labs builds <strong>The Architecture of Presence</strong>—a two-sided continuum that preserves spoken thought effortlessly in the present (<em>Ekam</em>) while restoring the steadiness (<em>Sthirta</em>) of one’s own inner voice for the future (<em>Dhwani</em>).
+    </p>
+  </section>
+
+  <!-- HIGH-LEVEL LEMNISCATE PLATE (PURE & UNCLUTTERED) -->
+  <div class="plate-box">
+    <div class="plate-header">
+      <span class="accent">Plate I // The Continuum of Presence</span>
+      <span>Ekam &nbsp;&rarr;&nbsp; Sutra &nbsp;&rarr;&nbsp; Dhwani</span>
+    </div>
+
+    <svg width="100%" height="190" viewBox="0 0 720 190" xmlns="http://www.w3.org/2000/svg">
+      <!-- Subtle Horizontal & Vertical Equilibrium Axis -->
+      <line x1="60" y1="95" x2="660" y2="95" stroke="#d4cfc3" stroke-width="1" stroke-dasharray="3 4"/>
+      <line x1="360" y1="20" x2="360" y2="170" stroke="#d4cfc3" stroke-width="1" stroke-dasharray="3 4"/>
+
+      <!-- The Lemniscate Continuous Thread -->
+      <path d="M 360 95 C 275 12, 95 12, 95 95 C 95 178, 275 178, 360 95 C 445 12, 625 12, 625 95 C 625 178, 445 178, 360 95 Z"
+            fill="none" stroke="#1c1e21" stroke-width="2.2"/>
+      <path d="M 360 95 C 275 12, 95 12, 95 95 C 95 178, 275 178, 360 95 C 445 12, 625 12, 625 95 C 625 178, 445 178, 360 95 Z"
+            fill="none" stroke="#d8522b" stroke-width="2.2" stroke-dasharray="8 16"/>
+
+      <!-- Left Loop High-Level Anchor: EKAM -->
+      <text x="195" y="88" fill="#1c1e21" font-family="EB Garamond, serif" font-size="28" font-weight="600" text-anchor="middle">Ekam</text>
+      <text x="195" y="110" fill="#52565c" font-family="Space Mono, monospace" font-size="9.5" letter-spacing="1.5" text-anchor="middle">INHABITING THE PRESENT</text>
+
+      <!-- Right Loop High-Level Anchor: DHWANI -->
+      <text x="525" y="88" fill="#1c1e21" font-family="EB Garamond, serif" font-size="28" font-weight="600" text-anchor="middle">Dhwani</text>
+      <text x="525" y="110" fill="#52565c" font-family="Space Mono, monospace" font-size="9.5" letter-spacing="1.5" text-anchor="middle">RESTORING THE INNER VOICE</text>
+
+      <!-- Center Transition Point: SUTRA -->
+      <circle class="sutra-pulse" cx="360" cy="95" r="20" fill="none" stroke="#d8522b" stroke-width="1.5"/>
+      <circle cx="360" cy="95" r="8" fill="#d8522b" stroke="#f4f1ea" stroke-width="2"/>
+      <text x="360" y="146" fill="#1c1e21" font-family="Space Mono, monospace" font-weight="700" font-size="11" letter-spacing="2.5" text-anchor="middle">SŪTRA</text>
+      <text x="360" y="161" fill="#52565c" font-family="EB Garamond, serif" font-style="italic" font-size="15" text-anchor="middle">The Point of Transition</text>
+    </svg>
+
+    <div class="plate-narrative">
+      <div>
+        <strong>The Spirit of the Left Half (Ekam — Inhabiting the Present):</strong> Human life is lived in the immediacy of the present, yet our finest spoken thoughts vanish into thin air unless we break our presence to record them. <em>Ekam</em> is the indivisibility of action and awareness—holding our thoughts in the present without mental strain or administrative clutter, so we can remain completely inside the room.
+      </div>
+      <div>
+        <strong>The Spirit of the Right Half (Dhwani — Persevering into the Future):</strong> Across the central <em>Sūtra</em> transition, what was captured in the present returns as <em>Dhwani</em>—the clarified echo of one’s own inner voice, often lost to modern noise. It provides <em>Sthirta</em> (steadiness, grounding, and direction) to preserve our energy and persevere into the future, looping back to fuel our next act of creation.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 01: THE TWO HALVES OF THE ARCHITECTURE OF PRESENCE -->
+  <div class="section-header">
+    <div class="section-title">The Dual Continuum of Presence</div>
+    <div class="section-num">01 // EKAM &amp; DHWANI</div>
+  </div>
+
+  <div class="split-ledger">
+    <!-- Left Column: EKAM -->
+    <div class="ledger-col">
+      <div class="ledger-col-head">
+        <div class="ledger-kicker">Loop I // Ekam (The Present)</div>
+        <h2>Distilling Lived Presence</h2>
+        <p class="ledger-col-sub">Uniting physical capture and reflective intelligence into one effortless act.</p>
+      </div>
+
+      <div class="ledger-item">
+        <div class="ledger-item-top">
+          <h3>Shruti</h3>
+          <span class="ledger-tag">Tier I // Pure Listening</span>
+        </div>
+        <p>Receiving the uncorrupted acoustic truth of a moment—preserving spoken nuance, bilingual cadence, and dialogue without digital distraction.</p>
+      </div>
+
+      <div class="ledger-item">
+        <div class="ledger-item-top">
+          <h3>Smaran</h3>
+          <span class="ledger-tag" style="color:var(--ochre);">Tier II // Recollection</span>
+        </div>
+        <p>Transforming fleeting speech into actionable continuity—threading decisions, commitments, and next steps into living memory so nothing slips away.</p>
+      </div>
+
+      <div class="ledger-item">
+        <div class="ledger-item-top">
+          <h3>Mannan</h3>
+          <span class="ledger-tag" style="color:var(--terracotta);">Tier III // Deep Synthesis</span>
+        </div>
+        <p>The highest contemplative tier—turning raw impressions over in the mind to strip away noise and reveal enduring conceptual architecture.</p>
+      </div>
+    </div>
+
+    <!-- Right Column: DHWANI -->
+    <div class="ledger-col">
+      <div class="ledger-col-head">
+        <div class="ledger-kicker">Loop II // Dhvani (The Future)</div>
+        <h2>The Return of the Inner Voice</h2>
+        <p class="ledger-col-sub">Reclaiming the voice often lost to modern clamor—providing Sthirta (steadiness) to persevere.</p>
+      </div>
+
+      <div class="ledger-item">
+        <div class="ledger-item-top">
+          <h3>Tara</h3>
+          <span class="ledger-tag" style="color:var(--terracotta);">Fluidity &amp; Breath</span>
+        </div>
+        <p>The resonance of somatic warmth and grounding. Softening metropolitan friction, returning awareness to the breath, and restoring emotional ease.</p>
+      </div>
+
+      <div class="ledger-item">
+        <div class="ledger-item-top">
+          <h3>Dhruv</h3>
+          <span class="ledger-tag" style="color:var(--ochre);">Fortitude &amp; Rigor</span>
+        </div>
+        <p>The architectural spine of perseverance. When complexity threatens to scatter direction, Dhruv anchors disciplined, unyielding clarity.</p>
+      </div>
+
+      <div class="ledger-item">
+        <div class="ledger-item-top">
+          <h3>Maya</h3>
+          <span class="ledger-tag" style="color:var(--saffron);">Stillness &amp; Horizon</span>
+        </div>
+        <p>The wide horizon of perspective. Stepping back from immediate urgency to behold work, time, and intention with unclouded stillness.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- THE SUTRA TRANSITION BOX (PROPERLY FOCUSED ON SUTRA) -->
+  <div class="sutra-bridge">
+    <div>
+      <div class="ledger-kicker">The Point of Transition // The Sūtra</div>
+      <h3>Weaving the Lived Present into Future Steadiness</h3>
+      <p>
+        The central crossing point of our continuum is the <strong>Sūtra</strong>. It represents the quiet threshold where raw acoustic intake (<em>Shruti</em>) and structured recollection (<em>Smaran</em>, <em>Mannan</em>) pass across the chasm—transforming fleeting moments into enduring intellectual capital that feeds our inner fortitude (<em>Dhwani</em>).
+      </p>
+    </div>
+    <div class="bridge-meta">
+      CONTINUUM BRIDGE // ⬡
+    </div>
+  </div>
+
+  <!-- EXPANDED PHILOSOPHICAL ESSAY SECTION TO GIVE INDEX SUBSTANTIVE DEPTH -->
+  <div class="essay-section">
+    <h2>The Economics of Attention: Why Subtraction is the Ultimate Luxury</h2>
+    <p>
+      For decades, the trajectory of technology has been governed by an unexamined axiom: more. More channels, more notifications, more metadata, more organizational hierarchies. We are told that if we simply configure our tools with enough precision, we can master the firehose of modern information.
+    </p>
+    <p>
+      Sutra Labs rejects this premise entirely. Attention is not a resource to be squeezed; it is a sacred boundary of human consciousness. When a system requires you to manage its operational overhead, it is no longer serving you—you are serving it. 
+    </p>
+    <p>
+      By grounding our architecture in <strong>The Architecture of Presence</strong>, we establish a rigorous boundary between active human living and automated digital memory. You inhabit the present; the system holds the thread. That is the definition of true studio luxury.
+    </p>
+  </div>
+
+  <div class="quote-box">
+    “The Architecture of Presence is not the absence of thought; it is the absence of friction between experiencing the present and remembering it for the future. When Ekam and Dhvani move in a single loop, the mind remains whole.”
+  </div>
+
+  <!-- SECTION 02: THE EIGHT PATHS OF QUIET WELLNESS -->
+  <div class="section-header">
+    <div class="section-title">The Eight Paths of Quiet Wellness</div>
+    <div class="section-num">02 // COMPASS OF PRESENCE</div>
+  </div>
+
+  <div class="paths-index">
+    <div class="path-row">
+      <div class="path-num">PATH 01</div>
+      <div class="path-name">Quiet Sight</div>
+      <div class="path-desc">Seeing clearly through algorithmic urgency; stripping away ornamental distraction so what is essential becomes unmistakable.</div>
+      <div class="path-meta">[Discernment // Maya]</div>
+    </div>
+    <div class="path-row">
+      <div class="path-num">PATH 02</div>
+      <div class="path-name">Quiet Intention</div>
+      <div class="path-desc">Choosing purpose over reactivity; replacing automatic impulse with deliberate pause and conscious direction.</div>
+      <div class="path-meta">[Discernment // Mannan]</div>
+    </div>
+    <div class="path-row">
+      <div class="path-num">PATH 03</div>
+      <div class="path-name">Quiet Voice</div>
+      <div class="path-desc">Honoring authentic expression and deep, uninterrupted listening—free from performance, dogma, or distortion.</div>
+      <div class="path-meta">[Rhythm // Tara]</div>
+    </div>
+    <div class="path-row">
+      <div class="path-num">PATH 04</div>
+      <div class="path-name">Quiet Action</div>
+      <div class="path-desc">Practicing functional restraint; removing every unnecessary step between a clear thought and its realization.</div>
+      <div class="path-meta">[Rhythm // Dhruv]</div>
+    </div>
+    <div class="path-row">
+      <div class="path-num">PATH 05</div>
+      <div class="path-name">Quiet Craft</div>
+      <div class="path-desc">Working and building in ways that respect human sovereignty, personal agency, and the privacy of the inner life.</div>
+      <div class="path-meta">[Rhythm // Smaran]</div>
+    </div>
+    <div class="path-row">
+      <div class="path-num">PATH 06</div>
+      <div class="path-name">Quiet Discipline</div>
+      <div class="path-desc">Replacing volatile cycles of burnout with steady, grounded fortitude (<em>Sthirta</em>) and repeatable daily rituals.</div>
+      <div class="path-meta">[Stillness // Dhruv]</div>
+    </div>
+    <div class="path-row">
+      <div class="path-num">PATH 07</div>
+      <div class="path-name">Quiet Presence</div>
+      <div class="path-desc">Returning from abstract noise back into somatic reality—anchoring awareness in breath, body, and the lived moment.</div>
+      <div class="path-meta">[Stillness // Tara]</div>
+    </div>
+    <div class="path-row">
+      <div class="path-num">PATH 08</div>
+      <div class="path-name">Quiet Stillness</div>
+      <div class="path-desc">Arriving at <em>Ekam</em>—the undivided state where present awareness, inner voice (<em>Dhwani</em>), and action move as one.</div>
+      <div class="path-meta">[Stillness // Maya]</div>
+    </div>
+  </div>
+
+  <footer>
+    <div>Sutra Labs — The Architecture of Presence</div>
+    <div>Ekam &nbsp;&rarr;&nbsp; Sūtra &nbsp;&rarr;&nbsp; Dhwani</div>
+  </footer>
+</div>
+
+</body>
+</html>
